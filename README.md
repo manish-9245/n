@@ -1,36 +1,215 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# NeetCode 150 Tracker
 
-## Getting Started
+A comprehensive, production-ready web application for tracking progress through 150 essential coding interview problems with multi-language solutions and personal notes.
 
-First, run the development server:
+![Home Page](https://img.shields.io/badge/Problems-150-blue) ![Languages-9](https://img.shields.io/badge/Languages-9-green) ![MongoDB](https://img.shields.io/badge/Database-MongoDB-green)
+
+## ✨ Features
+
+- **150 LeetCode Problems** organized across 18 categories
+- **Monaco Editor** (VS Code's editor) with syntax highlighting for 9 languages
+- **Multi-Language Solutions** - Python, JavaScript, TypeScript, Java, C++, Go, Rust, Swift, Kotlin
+- **Markdown Notes** for each problem
+- **Authentication System** - Read-only public access, protected edit mode
+- **Search & Filter** - Real-time search and category filtering
+- **Premium Dark Theme** - Glassmorphism design with smooth animations
+- **Scalable Architecture** - Ready for multiple problem collections
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Node.js 18+ and npm
+- MongoDB connection (Railway provided)
+
+### Installation
 
 ```bash
+# Clone or navigate to the project
+cd /Users/manishtiwari/Documents/Dev/neetcode-150
+
+# Install dependencies
+npm install
+
+# Seed the database with 150 problems
+npm run seed
+
+# Start development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Visit **http://localhost:3000**
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Default Login
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Password**: `admin123`
+- Change in `.env.local` (see Configuration section)
 
-## Learn More
+## 📁 Project Structure
 
-To learn more about Next.js, take a look at the following resources:
+```
+neetcode-150/
+├── src/
+│   ├── app/
+│   │   ├── api/              # API routes
+│   │   │   ├── auth/         # NextAuth configuration
+│   │   │   ├── collections/  # Collection endpoints
+│   │   │   ├── problems/     # Problem endpoints
+│   │   │   ├── solutions/    # Solution CRUD
+│   │   │   └── notes/        # Notes CRUD
+│   │   ├── problem/[id]/     # Problem detail pages
+│   │   ├── layout.tsx        # Root layout
+│   │   ├── page.tsx          # Home page
+│   │   └── globals.css       # Design system
+│   ├── components/           # React components
+│   ├── data/                 # Seed data
+│   │   └── neetcode150.ts    # 150 problems
+│   └── lib/
+│       ├── mongodb.ts        # Database connection
+│       ├── auth.ts           # Auth utilities
+│       └── types.ts          # TypeScript interfaces
+├── scripts/
+│   └── seed.ts               # Database seeding script
+└── .env.local                # Environment variables
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🔧 Configuration
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Environment Variables
 
-## Deploy on Vercel
+Create/edit `.env.local`:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```env
+# MongoDB (Railway)
+MONGODB_URI=mongodb://mongo:***@nozomi.proxy.rlwy.net:12346
+MONGODB_DB=neetcode_tracker
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# NextAuth
+NEXTAUTH_SECRET=your-secret-key-min-32-chars
+NEXTAUTH_URL=http://localhost:3000
+
+# Admin Password
+ADMIN_PASSWORD_HASH=$2a$10$...
+```
+
+### Change Admin Password
+
+```bash
+# Generate new password hash
+node -e "console.log(require('bcryptjs').hashSync('your-new-password', 10))"
+
+# Copy the output to ADMIN_PASSWORD_HASH in .env.local
+```
+
+## 📊 Database Schema
+
+### Collections
+- Stores metadata for problem sets (NeetCode 150, Blind 75, etc.)
+
+### Problems (150 documents)
+- Problem details, difficulty, category, description
+
+### Solutions (user-created)
+- Multi-language code solutions with complexity analysis
+
+### Notes (user-created)
+- Markdown notes for each problem
+
+## 🎯 Usage
+
+### Browse Problems
+1. Visit home page
+2. Use search or category filter
+3. Click any problem card
+
+### Add Solutions
+1. Login with admin password
+2. Navigate to problem detail page
+3. Click "Solutions" tab
+4. Select language
+5. Write code in Monaco Editor
+6. Add time/space complexity (optional)
+7. Click "Save Solution"
+
+### Add Notes
+1. Login (if not already)
+2. Go to "Notes" tab
+3. Write markdown notes
+4. Click "Save Note"
+
+## 🏗️ Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| **Frontend** | Next.js 16, React 19, TypeScript |
+| **Editor** | Monaco Editor |
+| **Styling** | Vanilla CSS |
+| **Backend** | Next.js API Routes |
+| **Database** | MongoDB (Railway) |
+| **Auth** | NextAuth.js v5 |
+
+## 🎨 Design System
+
+- **Dark Theme** with glassmorphism effects
+- **Color Palette**: Purple/Indigo gradients
+- **Difficulty Colors**: Easy (green), Medium (amber), Hard (red)
+- **Typography**: Inter font family
+- **Animations**: Smooth 250ms transitions
+
+## 📈 Performance
+
+- **MongoDB Indexes** on all frequently queried fields
+- **Connection Pooling** for database efficiency
+- **Code Splitting** - Monaco Editor lazy loaded
+- **Optimistic UI** for instant feedback
+
+## 🔐 Security
+
+- **Password-based authentication** with bcrypt hashing
+- **Session management** via NextAuth.js (30-day sessions)
+- **Read-only public access** - No login required to view
+- **Protected writes** - Authentication required for edits
+
+## 🚀 Deployment
+
+### Build for Production
+
+```bash
+npm run build
+npm start
+```
+
+### Deploy to Vercel
+
+```bash
+vercel deploy
+```
+
+Set environment variables in Vercel dashboard.
+
+## 📝 Adding More Collections
+
+1. Create seed data file in `src/data/`
+2. Update `scripts/seed.ts`
+3. Run `npm run seed`
+
+Example: Blind 75, Grind 169, custom problem sets
+
+## 🤝 Contributing
+
+This is a personal project, but feel free to fork and customize!
+
+## 📄 License
+
+MIT
+
+## 🙏 Credits
+
+- **NeetCode** for the curated problem list
+- **LeetCode** for the problems
+- **Monaco Editor** for the code editor
+- **Next.js** team for the framework
+
+---
+
+**Built with ❤️ using Next.js, MongoDB, and Monaco Editor**
