@@ -325,3 +325,84 @@ select:focus {
   margin: 0 auto;
   padding: 0 24px;
 }
+
+/* ==============================
+   Mobile Responsive Utilities
+   ============================== */
+
+/* Hide on mobile (< 768px) */
+@media (max-width: 767px) {
+  .hide-mobile {
+    display: none !important;
+  }
+}
+
+/* Show only on mobile */
+@media (min-width: 768px) {
+  .show-mobile-only {
+    display: none !important;
+  }
+}
+
+/* Touch-friendly button sizes */
+@media (max-width: 767px) {
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Mobile container padding */
+@media (max-width: 767px) {
+  .container {
+    padding: 0 16px;
+  }
+}
+
+/* Mobile text utilities */
+@media (max-width: 767px) {
+  .text-truncate-mobile {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+  }
+}
+
+/* Mobile tab styles */
+.mobile-tab {
+  flex: 1;
+  padding: 12px 8px;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  background: transparent;
+  border: none;
+  color: #71717a;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.mobile-tab.active {
+  color: #fff;
+  background: rgba(99, 102, 241, 0.1);
+  border-bottom-color: #6366f1;
+}
+
+/* Mobile solutions list */
+.mobile-solution-item {
+  padding: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.mobile-solution-item:active {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.mobile-solution-item.active {
+  background: rgba(99, 102, 241, 0.1);
+  border-left: 3px solid #6366f1;
+}

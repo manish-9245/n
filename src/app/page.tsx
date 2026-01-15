@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { signIn, signOut, useSession } from 'next-auth/react';
 import { GlareCard } from '@/components/ui/glare-card';
 import Link from 'next/link';
+import { useIsMobile } from '@/lib/useIsMobile';
 
 interface Problem {
   _id: string;
@@ -22,6 +23,7 @@ export default function Home() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
+  const isMobile = useIsMobile(768);
 
   useEffect(() => {
     fetchProblems();
@@ -124,7 +126,7 @@ export default function Home() {
         background: 'rgba(0, 0, 0, 0.8)',
         backdropFilter: 'blur(12px)',
         borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-        padding: '0 24px',
+        padding: '0 clamp(12px, 4vw, 24px)',
       }}>
         <div style={{
           maxWidth: 1280,
@@ -135,19 +137,16 @@ export default function Home() {
           justifyContent: 'space-between',
         }}>
           <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none' }}>
-            <div style={{
-              width: 40,
-              height: 40,
-              borderRadius: 10,
-              background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontWeight: 'bold',
-              fontSize: 18,
-              color: '#fff'
-            }}>N</div>
-            <span style={{ fontSize: 20, fontWeight: 700, color: '#fff' }}>NeetCode 150</span>
+            <img 
+              src="/developer.png" 
+              alt="Logo" 
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: 8,
+              }}
+            />
+            <span style={{ fontSize: 'clamp(14px, 4vw, 20px)', fontWeight: 700, color: '#fff' }}>NeetCode 150</span>
           </Link>
           
           {session ? (
@@ -192,7 +191,7 @@ export default function Home() {
       </header>
 
       {/* Hero */}
-      <section style={{ padding: '80px 24px 48px', textAlign: 'center' }}>
+      <section style={{ padding: 'clamp(40px, 8vw, 80px) clamp(16px, 4vw, 24px) clamp(32px, 6vw, 48px)', textAlign: 'center' }}>
         <div style={{ maxWidth: 800, margin: '0 auto' }}>
           <h1 style={{ 
             fontSize: 'clamp(36px, 8vw, 64px)', 
@@ -253,63 +252,155 @@ export default function Home() {
         backdropFilter: 'blur(12px)',
         borderTop: '1px solid rgba(255,255,255,0.05)',
         borderBottom: '1px solid rgba(255,255,255,0.05)',
-        padding: '16px 24px',
+        padding: isMobile ? '12px 16px' : '12px clamp(12px, 4vw, 24px)',
       }}>
-        <div style={{
-          maxWidth: 1280,
-          margin: '0 auto',
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 16,
-        }}>
-          <input
-            type="text"
-            placeholder="Search problems..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            style={{
-              width: '100%',
-              maxWidth: 320,
-              padding: '12px 16px',
-              borderRadius: 10,
-              background: 'rgba(255,255,255,0.05)',
-              border: '1px solid rgba(255,255,255,0.1)',
-              color: '#fff',
-              fontSize: 14,
-              outline: 'none',
-            }}
-          />
-          
-          <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            style={{
-              padding: '12px 16px',
-              borderRadius: 10,
-              background: 'rgba(255,255,255,0.05)',
-              border: '1px solid rgba(255,255,255,0.1)',
-              color: '#fff',
-              fontSize: 14,
-              outline: 'none',
-              cursor: 'pointer',
-              minWidth: 160,
-            }}
-          >
-            {categories.map(cat => (
-              <option key={cat} value={cat} style={{ background: '#18181b' }}>{cat}</option>
-            ))}
-          </select>
-          
-          <span style={{ fontSize: 14, color: '#71717a' }}>
-            {filteredProblems.length} of {problems.length} problems
-          </span>
-        </div>
+        {isMobile ? (
+          /* Mobile Filter Layout */
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {/* Search Input - Full Width */}
+            <div style={{ position: 'relative' }}>
+              <span style={{ 
+                position: 'absolute', 
+                left: 14, 
+                top: '50%', 
+                transform: 'translateY(-50%)',
+                color: '#71717a',
+                fontSize: 16,
+              }}>🔍</span>
+              <input
+                type="text"
+                placeholder="Search problems..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '14px 16px 14px 42px',
+                  borderRadius: 12,
+                  background: 'rgba(255,255,255,0.08)',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                  color: '#fff',
+                  fontSize: 15,
+                  outline: 'none',
+                }}
+              />
+            </div>
+            
+            {/* Category Chips + Count Row */}
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center',
+              gap: 12, 
+            }}>
+              {/* Category Chips - Horizontal Scroll */}
+              <div style={{ 
+                display: 'flex', 
+                gap: 8, 
+                overflowX: 'auto', 
+                flex: 1,
+                paddingBottom: 4,
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none',
+              }}>
+                <style>{`.filter-chips::-webkit-scrollbar { display: none; }`}</style>
+                {categories.map(cat => (
+                  <button
+                    key={cat}
+                    onClick={() => setSelectedCategory(cat)}
+                    style={{
+                      padding: '8px 16px',
+                      borderRadius: 20,
+                      background: selectedCategory === cat 
+                        ? 'linear-gradient(135deg, #6366f1, #8b5cf6)' 
+                        : 'rgba(255,255,255,0.08)',
+                      border: selectedCategory === cat 
+                        ? 'none' 
+                        : '1px solid rgba(255,255,255,0.15)',
+                      color: selectedCategory === cat ? '#fff' : '#a1a1aa',
+                      fontSize: 13,
+                      fontWeight: 500,
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap',
+                      flexShrink: 0,
+                    }}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+              
+              {/* Results Count - Vertically Centered */}
+              <div style={{ 
+                fontSize: 12, 
+                color: '#71717a', 
+                whiteSpace: 'nowrap',
+                flexShrink: 0,
+                display: 'flex',
+                alignItems: 'center',
+              }}>
+                {filteredProblems.length}/{problems.length}
+              </div>
+            </div>
+          </div>
+        ) : (
+          /* Desktop Filter Layout */
+          <div style={{
+            maxWidth: 1280,
+            margin: '0 auto',
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'stretch',
+            justifyContent: 'center',
+            gap: 16,
+          }}>
+            <input
+              type="text"
+              placeholder="Search problems..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{
+                width: '100%',
+                maxWidth: 'min(320px, 100%)',
+                flex: '1 1 200px',
+                padding: '12px 16px',
+                borderRadius: 10,
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                color: '#fff',
+                fontSize: 14,
+                outline: 'none',
+              }}
+            />
+            
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              style={{
+                padding: '12px 16px',
+                borderRadius: 10,
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                color: '#fff',
+                fontSize: 14,
+                outline: 'none',
+                cursor: 'pointer',
+                minWidth: 'min(160px, 100%)',
+                flex: '0 0 auto',
+              }}
+            >
+              {categories.map(cat => (
+                <option key={cat} value={cat} style={{ background: '#18181b' }}>{cat}</option>
+              ))}
+            </select>
+            
+            <span style={{ fontSize: 14, color: '#71717a' }}>
+              {filteredProblems.length} of {problems.length} problems
+            </span>
+          </div>
+        )}
       </section>
 
       {/* Problem Grid */}
-      <main style={{ maxWidth: 1280, margin: '0 auto', padding: '48px 24px' }}>
+      <main style={{ maxWidth: 1280, margin: '0 auto', padding: 'clamp(24px, 6vw, 48px) clamp(12px, 4vw, 24px)' }}>
         {filteredProblems.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '80px 0' }}>
             <div style={{ fontSize: 48, marginBottom: 16 }}>🔍</div>
@@ -319,8 +410,8 @@ export default function Home() {
         ) : (
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-            gap: 24,
+            gridTemplateColumns: 'repeat(auto-fill, minmax(min(280px, 100%), 1fr))',
+            gap: 'clamp(12px, 3vw, 24px)',
           }}>
             {filteredProblems.map((problem) => {
               const diffStyles = getDifficultyStyles(problem.difficulty);

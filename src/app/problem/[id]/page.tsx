@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Editor from '@monaco-editor/react';
 import ReactMarkdown from 'react-markdown';
 import { Panel, Group as PanelGroup, Separator as PanelResizeHandle } from 'react-resizable-panels';
+import { useIsMobile } from '@/lib/useIsMobile';
 
 interface Problem {
   _id: string;
@@ -24,6 +25,8 @@ interface Solution {
   timeComplexity?: string;
   spaceComplexity?: string;
   explanation?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 const LANGUAGES = [
@@ -42,6 +45,7 @@ export default function ProblemPage({ params }: { params: Promise<{ id: string }
   const [solutions, setSolutions] = useState<Solution[]>([]);
   /* State Updates */
   const [note, setNote] = useState('');
+  const [noteUpdatedAt, setNoteUpdatedAt] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'description' | 'solutions' | 'notes'>('description');
   const [selectedLanguage, setSelectedLanguage] = useState('python');
   const [noteType, setNoteType] = useState<'problem' | 'solution'>('problem');
@@ -59,6 +63,10 @@ export default function ProblemPage({ params }: { params: Promise<{ id: string }
   const [spaceComplexity, setSpaceComplexity] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  
+  // Mobile responsive state
+  const isMobile = useIsMobile(768);
+  const [mobileTab, setMobileTab] = useState<'problem' | 'solutions' | 'editor'>('problem');
 
   useEffect(() => {
     fetchProblem();
@@ -100,6 +108,7 @@ export default function ProblemPage({ params }: { params: Promise<{ id: string }
       const data = await res.json();
       if (data) {
         setNote(data.content || '');
+        setNoteUpdatedAt(data.updatedAt || data.createdAt || null);
       }
     } catch (error) {
       console.error('Error fetching note:', error);
@@ -235,6 +244,23 @@ export default function ProblemPage({ params }: { params: Promise<{ id: string }
     return lang?.icon || '📄';
   };
 
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return null;
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
+
   if (loading) {
     return (
       <div style={{ 
@@ -316,15 +342,14 @@ export default function ProblemPage({ params }: { params: Promise<{ id: string }
         background: 'rgba(0, 0, 0, 0.8)',
         backdropFilter: 'blur(12px)',
         borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-        padding: '0 24px',
-        height: 56,
-        flexShrink: 0, // Prevent header from shrinking
+        padding: isMobile ? '0 12px' : '0 24px',
+        height: isMobile ? 48 : 56,
+        flexShrink: 0,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
         zIndex: 50,
       }}>
-        {/* Header Content Details... */}
         <div style={{
           width: '100%',
           maxWidth: 1920,
@@ -332,8 +357,9 @@ export default function ProblemPage({ params }: { params: Promise<{ id: string }
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
+          gap: isMobile ? 8 : 16,
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 8 : 16, flex: 1, minWidth: 0 }}>
             <Link 
               href="/" 
               style={{ 
@@ -343,58 +369,438 @@ export default function ProblemPage({ params }: { params: Promise<{ id: string }
                 display: 'flex',
                 alignItems: 'center',
                 gap: 6,
-                padding: '6px 12px',
+                padding: isMobile ? '6px 8px' : '6px 12px',
                 borderRadius: 8,
                 background: 'rgba(255,255,255,0.05)',
                 border: '1px solid rgba(255,255,255,0.1)',
+                flexShrink: 0,
               }}
             >
-              ← Problems
+              {isMobile ? '←' : '← Problems'}
             </Link>
             
-            <div style={{ width: 1, height: 24, background: 'rgba(255,255,255,0.1)' }} />
+            {!isMobile && <div style={{ width: 1, height: 24, background: 'rgba(255,255,255,0.1)' }} />}
             
-            <h1 style={{ fontSize: 16, fontWeight: 600, color: '#fff' }}>
+            <h1 style={{ 
+              fontSize: isMobile ? 14 : 16, 
+              fontWeight: 600, 
+              color: '#fff',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              minWidth: 0,
+            }}>
               {problem.title}
             </h1>
             
             <span style={{ 
-              fontSize: 12, 
+              fontSize: isMobile ? 10 : 12, 
               fontWeight: 600,
               color: diffStyles.color,
               background: diffStyles.bg,
               border: `1px solid ${diffStyles.border}`,
-              padding: '4px 10px',
+              padding: isMobile ? '2px 6px' : '4px 10px',
               borderRadius: 6,
+              flexShrink: 0,
             }}>
               {problem.difficulty}
             </span>
           </div>
           
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            {!session && (
-              <span style={{ fontSize: 12, color: '#71717a', marginRight: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+            {!session && !isMobile && (
+              <span style={{ fontSize: 12, color: '#71717a' }}>
                 👁 View Only
               </span>
             )}
             {session && (
               <span style={{ 
-                fontSize: 12, 
+                fontSize: isMobile ? 10 : 12, 
                 color: '#10b981',
                 background: 'rgba(16, 185, 129, 0.1)',
-                padding: '4px 10px',
+                padding: isMobile ? '2px 6px' : '4px 10px',
                 borderRadius: 6,
               }}>
-                ✓ Admin
+                {isMobile ? '✓' : '✓ Admin'}
               </span>
             )}
           </div>
         </div>
       </header>
 
-      {/* Main Content with Resizable Panels */}
+      {/* Main Content */}
       <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
-         <PanelGroup orientation="horizontal" style={{ height: '100%', width: '100%' }}>
+        {/* Mobile Tab Navigation */}
+        {isMobile && (
+          <div style={{
+            display: 'flex',
+            borderBottom: '1px solid rgba(255,255,255,0.1)',
+            background: '#09090b',
+            flexShrink: 0,
+          }}>
+            {(['problem', 'solutions', 'editor'] as const).map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setMobileTab(tab)}
+                className={`mobile-tab ${mobileTab === tab ? 'active' : ''}`}
+              >
+                {tab === 'problem' ? '📖 Problem' : tab === 'solutions' ? '💡 Solutions' : '✏️ Editor'}
+              </button>
+            ))}
+          </div>
+        )}
+        
+        {/* Mobile Layout */}
+        {isMobile ? (
+          <div style={{ height: 'calc(100% - 46px)', overflow: 'auto' }}>
+            {/* Problem Tab Content */}
+            {mobileTab === 'problem' && (
+              <div style={{ padding: 16 }}>
+                <div style={{ 
+                  fontSize: 12, 
+                  color: '#a1a1aa',
+                  background: 'rgba(255,255,255,0.03)',
+                  padding: '6px 10px',
+                  borderRadius: 8,
+                  marginBottom: 16,
+                  display: 'inline-block',
+                }}>
+                  {problem.category}
+                </div>
+                
+                <style>{`
+                  .prose p { margin-bottom: 1rem; color: #a1a1aa; line-height: 1.7; }
+                  .prose strong { color: #fff; font-weight: 600; }
+                  .prose ul, .prose ol { margin-bottom: 1rem; padding-left: 1.5rem; color: #a1a1aa; }
+                  .prose li { margin-bottom: 0.5rem; }
+                  .prose code { 
+                    background: rgba(99, 102, 241, 0.1);
+                    padding: 0.2em 0.4em;
+                    border-radius: 4px;
+                    font-size: 0.85em;
+                    font-family: monospace;
+                    color: #a78bfa; 
+                  }
+                  .prose pre {
+                    background: #18181b;
+                    padding: 1rem;
+                    border-radius: 0.5rem;
+                    overflow: auto;
+                    margin-bottom: 1rem;
+                    border: 1px solid rgba(255,255,255,0.1);
+                    color: #e4e4e7;
+                  }
+                `}</style>
+                
+                <div 
+                  className="prose"
+                  dangerouslySetInnerHTML={{ __html: problem.description }}
+                />
+                
+                {problem.leetcodeUrl && (
+                  <div style={{ marginTop: 24, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                    <a 
+                      href={problem.leetcodeUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 8,
+                        color: '#6366f1',
+                        textDecoration: 'none',
+                        fontSize: 14,
+                        padding: '10px 16px',
+                        borderRadius: 8,
+                        background: 'rgba(99, 102, 241, 0.1)',
+                        border: '1px solid rgba(99, 102, 241, 0.2)',
+                      }}
+                    >
+                      View on LeetCode →
+                    </a>
+                  </div>
+                )}
+                
+                {/* Notes Section in Problem Tab for Mobile */}
+                <div style={{ marginTop: 32, paddingTop: 24, borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                    <h3 style={{ fontSize: 16, fontWeight: 600, color: '#e4e4e7', margin: 0 }}>Notes</h3>
+                    {noteUpdatedAt && (
+                      <span style={{ fontSize: 11, color: '#52525b' }}>Updated {formatDate(noteUpdatedAt)}</span>
+                    )}
+                  </div>
+                  {session ? (
+                    <>
+                      <textarea
+                        value={note}
+                        onChange={(e) => setNote(e.target.value)}
+                        placeholder="Write notes for this problem..."
+                        style={{
+                          width: '100%',
+                          minHeight: 150,
+                          background: 'rgba(0,0,0,0.3)',
+                          border: '1px solid rgba(255,255,255,0.1)',
+                          borderRadius: 12,
+                          padding: 12,
+                          color: '#e4e4e7',
+                          fontSize: 14,
+                          fontFamily: 'monospace',
+                          resize: 'vertical',
+                          outline: 'none',
+                        }}
+                      />
+                      <button 
+                        onClick={saveNote}
+                        disabled={saving}
+                        style={{
+                          marginTop: 12,
+                          padding: '10px 20px',
+                          borderRadius: 8,
+                          background: saving ? '#3f3f46' : 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                          border: 'none',
+                          color: '#fff',
+                          fontSize: 14,
+                          fontWeight: 500,
+                          cursor: saving ? 'not-allowed' : 'pointer',
+                        }}
+                      >
+                        {saving ? 'Saving...' : 'Save Note'}
+                      </button>
+                    </>
+                  ) : (
+                    note ? (
+                      <div className="markdown-content">
+                        <ReactMarkdown>{note}</ReactMarkdown>
+                      </div>
+                    ) : (
+                      <p style={{ color: '#71717a', fontSize: 14 }}>No notes yet</p>
+                    )
+                  )}
+                </div>
+              </div>
+            )}
+            
+            {/* Solutions Tab Content */}
+            {mobileTab === 'solutions' && (
+              <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                {session && (
+                  <div style={{ padding: 16, borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                    <button 
+                      onClick={createNewSolution}
+                      style={{
+                        width: '100%',
+                        padding: '12px 16px',
+                        borderRadius: 8,
+                        background: 'rgba(99, 102, 241, 0.2)',
+                        color: '#a5b4fc',
+                        border: '1px solid rgba(99, 102, 241, 0.4)',
+                        fontSize: 14,
+                        fontWeight: 500,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      + New Solution
+                    </button>
+                  </div>
+                )}
+                <div style={{ flex: 1, overflow: 'auto' }}>
+                  {solutions.length === 0 && !isNewSolution && (
+                    <div style={{ padding: 32, textAlign: 'center', color: '#71717a' }}>
+                      No solutions yet
+                    </div>
+                  )}
+                  {isNewSolution && (
+                    <div 
+                      className="mobile-solution-item active"
+                      onClick={() => setMobileTab('editor')}
+                    >
+                      <div style={{ fontSize: 15, color: '#fff', marginBottom: 4 }}>New Solution</div>
+                      <div style={{ fontSize: 12, color: '#a5b4fc' }}>Draft - Tap to edit</div>
+                    </div>
+                  )}
+                  {solutions.map(sol => {
+                    const isActive = sol._id === currentSolutionId && !isNewSolution;
+                    const langInfo = LANGUAGES.find(l => l.id === sol.language);
+                    
+                    return (
+                      <div
+                        key={sol._id}
+                        className={`mobile-solution-item ${isActive ? 'active' : ''}`}
+                        onClick={() => {
+                          loadSolutionById(sol._id);
+                          setMobileTab('editor');
+                        }}
+                      >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <div>
+                            <div style={{ fontSize: 15, color: isActive ? '#fff' : '#d4d4d8', marginBottom: 4 }}>
+                              {sol.name || 'Untitled'}
+                            </div>
+                            <div style={{ fontSize: 12, color: '#71717a', display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                              <span>{langInfo?.icon || '📄'}</span>
+                              <span>{langInfo?.name || sol.language}</span>
+                              {sol.timeComplexity && <span>• {sol.timeComplexity}</span>}
+                              {sol.createdAt && <span style={{ color: '#52525b' }}>• {formatDate(sol.createdAt)}</span>}
+                            </div>
+                          </div>
+                          {session && (
+                            <button 
+                              onClick={(e) => { e.stopPropagation(); deleteSolution(sol._id); }}
+                              style={{ background: 'transparent', border: 'none', fontSize: 16, cursor: 'pointer', padding: 8 }}
+                            >
+                              🗑️
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+            
+            {/* Editor Tab Content */}
+            {mobileTab === 'editor' && (
+              <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                {/* Editor Header */}
+                <div style={{
+                  padding: '12px 16px',
+                  borderBottom: '1px solid rgba(255,255,255,0.1)',
+                  background: 'rgba(0,0,0,0.3)',
+                }}>
+                  {session ? (
+                    <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+                      <input 
+                        value={solutionName} 
+                        onChange={(e) => setSolutionName(e.target.value)}
+                        placeholder="Solution Name"
+                        style={{
+                          flex: 1,
+                          minWidth: 120,
+                          background: 'transparent',
+                          border: 'none',
+                          borderBottom: '1px solid rgba(255,255,255,0.2)',
+                          color: '#fff',
+                          fontSize: 14,
+                          fontWeight: 500,
+                          outline: 'none',
+                          padding: '4px 0',
+                        }} 
+                      />
+                      <select
+                        value={selectedLanguage}
+                        onChange={(e) => setSelectedLanguage(e.target.value)}
+                        style={{
+                          background: '#18181b',
+                          border: '1px solid rgba(255,255,255,0.1)',
+                          color: '#fff',
+                          borderRadius: 4,
+                          fontSize: 13,
+                          padding: '6px 8px',
+                        }}
+                      >
+                        {LANGUAGES.map(l => <option key={l.id} value={l.id}>{l.icon} {l.name}</option>)}
+                      </select>
+                      <button 
+                        onClick={saveSolution}
+                        disabled={saving}
+                        style={{
+                          background: '#10b981',
+                          color: '#fff',
+                          border: 'none',
+                          borderRadius: 6,
+                          padding: '8px 16px',
+                          fontSize: 13,
+                          fontWeight: 500,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        {saving ? 'Saving...' : 'Save'}
+                      </button>
+                    </div>
+                  ) : (
+                    <div style={{ color: '#a1a1aa', fontSize: 14 }}>
+                      {solutionName || 'Untitled Solution'} • {LANGUAGES.find(l => l.id === selectedLanguage)?.name}
+                    </div>
+                  )}
+                </div>
+                
+                {/* Editor Area */}
+                <div style={{ flex: 1, minHeight: 300, overflow: 'hidden' }}>
+                  <Editor
+                    height="100%"
+                    language={selectedLanguage === 'cpp' ? 'cpp' : selectedLanguage}
+                    value={code || (session ? '' : '// No solution selected')}
+                    onChange={(value) => session && setCode(value || '')}
+                    theme="vs-dark"
+                    options={{
+                      minimap: { enabled: false },
+                      fontSize: 13,
+                      readOnly: !session,
+                      fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+                      automaticLayout: true,
+                      wordWrap: 'off',
+                      scrollBeyondLastColumn: 5,
+                      scrollbar: {
+                        horizontal: 'visible',
+                        horizontalScrollbarSize: 10,
+                        useShadows: false,
+                      },
+                    }}
+                  />
+                </div>
+                
+                {/* Complexity Footer */}
+                <div style={{ 
+                  padding: 12, 
+                  borderTop: '1px solid rgba(255,255,255,0.1)', 
+                  display: 'flex', 
+                  gap: 12,
+                  flexWrap: 'wrap',
+                }}>
+                  <div style={{ flex: '1 1 100px' }}>
+                    <label style={{ fontSize: 11, color: '#71717a', display: 'block', marginBottom: 4 }}>Time</label>
+                    <input 
+                      value={timeComplexity}
+                      onChange={(e) => setTimeComplexity(e.target.value)}
+                      disabled={!session}
+                      placeholder="O(n)"
+                      style={{ 
+                        width: '100%', 
+                        background: 'rgba(255,255,255,0.05)', 
+                        border: 'none', 
+                        color: '#fff', 
+                        fontSize: 13,
+                        padding: '6px 10px',
+                        borderRadius: 4
+                      }}
+                    />
+                  </div>
+                  <div style={{ flex: '1 1 100px' }}>
+                    <label style={{ fontSize: 11, color: '#71717a', display: 'block', marginBottom: 4 }}>Space</label>
+                    <input 
+                      value={spaceComplexity}
+                      onChange={(e) => setSpaceComplexity(e.target.value)}
+                      disabled={!session}
+                      placeholder="O(1)"
+                      style={{ 
+                        width: '100%', 
+                        background: 'rgba(255,255,255,0.05)', 
+                        border: 'none', 
+                        color: '#fff', 
+                        fontSize: 13,
+                        padding: '6px 10px',
+                        borderRadius: 4
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          /* Desktop Layout - Resizable Panels */
+          <PanelGroup orientation="horizontal" style={{ height: '100%', width: '100%' }}>
             {/* Left Panel - Description/Notes */}
             <Panel defaultSize="40" minSize="20" style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
                 <div style={{ 
@@ -729,6 +1135,7 @@ export default function ProblemPage({ params }: { params: Promise<{ id: string }
                                             <div style={{ fontSize: 12, color: '#71717a', display: 'flex', alignItems: 'center', gap: 6 }}>
                                                 <span>{langInfo?.icon || '📄'}</span>
                                                 <span>{langInfo?.name || sol.language}</span>
+                                                {sol.createdAt && <span style={{ color: '#52525b' }}>• {formatDate(sol.createdAt)}</span>}
                                             </div>
                                         </div>
                                     );
@@ -899,6 +1306,7 @@ export default function ProblemPage({ params }: { params: Promise<{ id: string }
                 </PanelGroup>
             </Panel>
          </PanelGroup>
+        )}
       </div>
      </div>
   );
