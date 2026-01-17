@@ -137,8 +137,9 @@ export default function Home() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
+          gap: 12,
         }}>
-          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none' }}>
+          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none', flexShrink: 0 }}>
             <img 
               src="/developer.png" 
               alt="Logo" 
@@ -148,8 +149,68 @@ export default function Home() {
                 borderRadius: 8,
               }}
             />
-            <span style={{ fontSize: 'clamp(14px, 4vw, 20px)', fontWeight: 700, color: '#fff' }}>NeetCode 150</span>
+            <span style={{ fontSize: 'clamp(14px, 4vw, 20px)', fontWeight: 700, color: '#fff' }}>{isMobile ? '' : 'NeetCode 150'}</span>
           </Link>
+          
+          {/* Nav Buttons Group */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, justifyContent: 'center' }}>
+            <button
+              onClick={() => setShowHeatmapModal(true)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: isMobile ? '8px 10px' : '8px 14px',
+                borderRadius: 8,
+                background: 'rgba(16, 185, 129, 0.15)',
+                border: '1px solid rgba(16, 185, 129, 0.3)',
+                color: '#34d399',
+                fontSize: isMobile ? 12 : 13,
+                fontWeight: 500,
+                cursor: 'pointer',
+              }}
+            >
+              📊 {isMobile ? 'Heatmap' : 'Activity'}
+            </button>
+            
+            <Link 
+              href="/roadmap"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: isMobile ? '8px 10px' : '8px 14px',
+                borderRadius: 8,
+                background: 'rgba(99, 102, 241, 0.15)',
+                border: '1px solid rgba(99, 102, 241, 0.3)',
+                color: '#818cf8',
+                fontSize: isMobile ? 12 : 13,
+                fontWeight: 500,
+                textDecoration: 'none',
+              }}
+            >
+              🗺️ Roadmap
+            </Link>
+            
+            <Link 
+              href="/revision"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: isMobile ? '8px 10px' : '8px 14px',
+                borderRadius: 8,
+                background: 'rgba(245, 158, 11, 0.15)',
+                border: '1px solid rgba(245, 158, 11, 0.3)',
+                color: '#fbbf24',
+                fontSize: isMobile ? 12 : 13,
+                fontWeight: 500,
+                textDecoration: 'none',
+              }}
+            >
+              📚 Revision
+            </Link>
+          </div>
           
           {session ? (
             <button 
@@ -241,38 +302,6 @@ export default function Home() {
               <div style={{ fontSize: 32, fontWeight: 700, color: '#fff' }}>{problems.length}</div>
               <div style={{ fontSize: 14, color: '#71717a' }}>Total</div>
             </div>
-          </div>
-
-          {/* See Heatmap Button */}
-          <div style={{ marginTop: 48 }}>
-            <button
-              onClick={() => setShowHeatmapModal(true)}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 10,
-                padding: '14px 28px',
-                borderRadius: 12,
-                background: 'rgba(99, 102, 241, 0.15)',
-                border: '1px solid rgba(99, 102, 241, 0.3)',
-                color: '#818cf8',
-                fontSize: 15,
-                fontWeight: 500,
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(99, 102, 241, 0.25)';
-                e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.5)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'rgba(99, 102, 241, 0.15)';
-                e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.3)';
-              }}
-            >
-              <span style={{ fontSize: 18 }}>📊</span>
-              See Activity Heatmap
-            </button>
           </div>
         </div>
       </section>
@@ -382,7 +411,7 @@ export default function Home() {
             margin: '0 auto',
             display: 'flex',
             flexWrap: 'wrap',
-            alignItems: 'stretch',
+            alignItems: 'center',
             justifyContent: 'center',
             gap: 16,
           }}>
@@ -426,7 +455,12 @@ export default function Home() {
               ))}
             </select>
             
-            <span style={{ fontSize: 14, color: '#71717a' }}>
+            <span style={{ 
+              fontSize: 14, 
+              color: '#71717a',
+              display: 'flex',
+              alignItems: 'center',
+            }}>
               {filteredProblems.length} of {problems.length} problems
             </span>
           </div>
