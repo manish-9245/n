@@ -5,6 +5,7 @@ import { signIn, signOut, useSession } from 'next-auth/react';
 import { GlareCard } from '@/components/ui/glare-card';
 import Link from 'next/link';
 import { useIsMobile } from '@/lib/useIsMobile';
+import { ActivityHeatmap } from '@/components/ActivityHeatmap';
 
 interface Problem {
   _id: string;
@@ -21,6 +22,7 @@ export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showHeatmapModal, setShowHeatmapModal] = useState(false);
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
   const isMobile = useIsMobile(768);
@@ -239,6 +241,38 @@ export default function Home() {
               <div style={{ fontSize: 32, fontWeight: 700, color: '#fff' }}>{problems.length}</div>
               <div style={{ fontSize: 14, color: '#71717a' }}>Total</div>
             </div>
+          </div>
+
+          {/* See Heatmap Button */}
+          <div style={{ marginTop: 48 }}>
+            <button
+              onClick={() => setShowHeatmapModal(true)}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 10,
+                padding: '14px 28px',
+                borderRadius: 12,
+                background: 'rgba(99, 102, 241, 0.15)',
+                border: '1px solid rgba(99, 102, 241, 0.3)',
+                color: '#818cf8',
+                fontSize: 15,
+                fontWeight: 500,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(99, 102, 241, 0.25)';
+                e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.5)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(99, 102, 241, 0.15)';
+                e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.3)';
+              }}
+            >
+              <span style={{ fontSize: 18 }}>📊</span>
+              See Activity Heatmap
+            </button>
           </div>
         </div>
       </section>
@@ -611,6 +645,83 @@ export default function Home() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Heatmap Modal */}
+      {showHeatmapModal && (
+        <div 
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 100,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'rgba(0,0,0,0.85)',
+            backdropFilter: 'blur(8px)',
+            padding: 24,
+          }}
+          onClick={() => setShowHeatmapModal(false)}
+        >
+          <div 
+            style={{
+              width: '100%',
+              maxWidth: 900,
+              background: '#0a0a0f',
+              borderRadius: 20,
+              border: '1px solid rgba(255,255,255,0.1)',
+              padding: 0,
+              maxHeight: '90vh',
+              overflow: 'auto',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '20px 24px',
+              borderBottom: '1px solid rgba(255,255,255,0.1)',
+            }}>
+              <h2 style={{ 
+                fontSize: 20, 
+                fontWeight: 700, 
+                color: '#fff',
+                margin: 0,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+              }}>
+                <span>📊</span>
+                Activity Heatmap
+              </h2>
+              <button
+                onClick={() => setShowHeatmapModal(false)}
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 8,
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  color: '#a1a1aa',
+                  fontSize: 18,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                ✕
+              </button>
+            </div>
+            
+            {/* Heatmap Content */}
+            <div style={{ padding: 24 }}>
+              <ActivityHeatmap />
+            </div>
           </div>
         </div>
       )}

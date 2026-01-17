@@ -114,15 +114,17 @@ export const GlareCard = ({
           display: grid;
           transform-style: preserve-3d;
           transform: rotateY(var(--r-x)) rotateX(var(--r-y));
-          transition: transform var(--duration) var(--easing);
+          transition: transform var(--duration) var(--easing), box-shadow 0.3s ease;
           will-change: transform;
           border-radius: var(--radius);
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.08);
           overflow: hidden;
         }
         
         .glare-card-inner:hover {
-          --opacity: 0.6;
+          --opacity: 0.45;
+          border-color: rgba(99, 102, 241, 0.4);
+          box-shadow: 0 0 30px rgba(99, 102, 241, 0.2), 0 0 60px rgba(139, 92, 246, 0.1);
         }
         
         .glare-card-content {
@@ -142,9 +144,9 @@ export const GlareCard = ({
           pointer-events: none;
           background: radial-gradient(
             farthest-corner circle at var(--m-x) var(--m-y),
-            rgba(255, 255, 255, 0.8) 10%,
-            rgba(255, 255, 255, 0.65) 20%,
-            rgba(255, 255, 255, 0) 90%
+            rgba(255, 255, 255, 0.4) 10%,
+            rgba(255, 255, 255, 0.2) 30%,
+            rgba(255, 255, 255, 0) 70%
           );
         }
         
@@ -152,23 +154,17 @@ export const GlareCard = ({
           grid-area: 1 / 1;
           width: 100%;
           height: 100%;
-          mix-blend-mode: color-dodge;
+          mix-blend-mode: overlay;
           opacity: var(--opacity);
           transition: opacity var(--duration) var(--easing);
           pointer-events: none;
           background: 
-            repeating-linear-gradient(
-              0deg,
-              rgb(255, 119, 115) calc(5% * 1),
-              rgba(255, 237, 95, 1) calc(5% * 2),
-              rgba(168, 255, 95, 1) calc(5% * 3),
-              rgba(131, 255, 247, 1) calc(5% * 4),
-              rgba(120, 148, 255, 1) calc(5% * 5),
-              rgb(216, 117, 255) calc(5% * 6),
-              rgb(255, 119, 115) calc(5% * 7)
+            radial-gradient(
+              ellipse at var(--bg-x) var(--bg-y),
+              rgba(99, 102, 241, 0.15) 0%,
+              rgba(139, 92, 246, 0.1) 30%,
+              transparent 70%
             );
-          background-position: 0% var(--bg-y);
-          background-size: 200% 700%;
         }
       `}</style>
     </div>
