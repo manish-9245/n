@@ -2,6 +2,10 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { Providers } from '@/components/Providers';
 import { ServiceWorkerRegistration } from '@/components/ServiceWorkerRegistration';
+import { getDb } from '@/lib/mongodb';
+import { COLLECTIONS } from '@/lib/types';
+import { ProblemsProvider } from '@/context/ProblemsContext';
+import { GlobalNav } from '@/components/GlobalNav';
 
 export const metadata: Metadata = {
   title: 'NeetCode 150 Tracker',
@@ -30,11 +34,25 @@ export const viewport: Viewport = {
   viewportFit: 'cover',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // Fetch problems globally once
+  const db = await getDb();
+  const collection = await db.collection(COLLECTIONS.COLLECTIONS).findOne({ slug: 'neetcode-150' });
+  
+  let problems: any[] = [];
+  if (collection) {
+    problems = await db.collection(COLLECTIONS.PROBLEMS)
+      .find({ collectionId: collection._id })
+      .sort({ order: 1 })
+      .toArray();
+  }
+
+  // Serialize props
+  const serializedProblems = JSON.parse(JSON.stringify(problems));
   return (
     <html lang="en" className="dark">
       <head>
@@ -42,7 +60,12 @@ export default function RootLayout({
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
       <body>
-        <Providers>{children}</Providers>
+        <Providers>
+          <ProblemsProvider initialProblems={serializedProblems}>
+            <GlobalNav />
+            {children}
+          </ProblemsProvider>
+        </Providers>
         <ServiceWorkerRegistration />
       </body>
     </html>

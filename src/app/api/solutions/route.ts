@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/mongodb';
 import { COLLECTIONS, Solution } from '@/lib/types';
 import { ObjectId } from 'mongodb';
+import { estimateComplexity } from '@/lib/gemini';
 
 export async function GET(request: NextRequest) {
     try {
@@ -56,6 +57,24 @@ export async function POST(request: NextRequest) {
             createdAt: new Date(),
             updatedAt: new Date(),
         };
+
+        // If complexity is missing, try to estimate it using AI
+        if (!timeComplexity || !spaceComplexity) {
+            try {
+                const aiEstimates = await estimateComplexity(code, language);
+                if (aiEstimates) {
+                    if (!timeComplexity && aiEstimates.timeComplexity) {
+                        solution.timeComplexity = aiEstimates.timeComplexity;
+                    }
+                    if (!spaceComplexity && aiEstimates.spaceComplexity) {
+                        solution.spaceComplexity = aiEstimates.spaceComplexity;
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to estimate complexity:', err);
+                // Continue without complexity if AI fails
+            }
+        }
 
         const result = await db.collection(COLLECTIONS.SOLUTIONS).insertOne(solution);
 

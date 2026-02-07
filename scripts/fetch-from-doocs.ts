@@ -3,7 +3,8 @@ import 'dotenv/config';
 import { MongoClient } from 'mongodb';
 import { neetcode150Problems } from '../src/data/neetcode150';
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://mongo:jEqCZWooNIPfcjfipzPXCwPWxOOHiHOK@nozomi.proxy.rlwy.net:12346';
+const MONGODB_URI = process.env.MONGODB_URI;
+if (!MONGODB_URI) throw new Error('Please add MONGODB_URI to .env.local');
 const DB_NAME = process.env.MONGODB_DB || 'neetcode_tracker';
 const DOOCS_BASE = 'https://raw.githubusercontent.com/doocs/leetcode/main/solution';
 const MAPPING_URL = 'https://raw.githubusercontent.com/neetcode-gh/leetcode/main/.problemSiteData.json';

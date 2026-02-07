@@ -408,6 +408,7 @@ export function Roadmap({ problems, solvedProblemIds }: RoadmapProps) {
                             stroke={highlighted ? "url(#edgeGradientHighlight)" : "url(#edgeGradient)"}
                             strokeWidth={highlighted ? 3 : 2}
                             strokeLinecap="round"
+                            markerEnd={highlighted ? "url(#arrowhead-highlight)" : "url(#arrowhead)"}
                         />
                     );
                 })}

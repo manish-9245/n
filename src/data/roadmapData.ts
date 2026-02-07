@@ -60,22 +60,23 @@ export const roadmapEdges: RoadmapEdge[] = [
     // From Two Pointers
     { from: 'two-pointers', to: 'binary-search' },
     { from: 'two-pointers', to: 'sliding-window' },
+    { from: 'two-pointers', to: 'linked-list' },
 
     // From Stack
-    { from: 'stack', to: 'linked-list' },
+    // No interactions
 
     // To Trees (from multiple)
     { from: 'binary-search', to: 'trees' },
-    { from: 'sliding-window', to: 'trees' },
     { from: 'linked-list', to: 'trees' },
+    // Sliding Window no longer connects to Trees
 
     // From Trees
     { from: 'trees', to: 'tries' },
     { from: 'trees', to: 'backtracking' },
+    { from: 'trees', to: 'heap' },
 
     // From Tries
-    { from: 'tries', to: 'heap' },
-    { from: 'tries', to: 'graphs' },
+    // No downward connections
 
     // From Backtracking
     { from: 'backtracking', to: 'graphs' },
@@ -84,17 +85,25 @@ export const roadmapEdges: RoadmapEdge[] = [
     // From Heap
     { from: 'heap', to: 'intervals' },
     { from: 'heap', to: 'greedy' },
+    { from: 'heap', to: 'advanced-graphs' },
 
     // From Graphs
     { from: 'graphs', to: 'advanced-graphs' },
-    { from: 'graphs', to: 'greedy' },
+    { from: 'graphs', to: '2d-dp' },
+    { from: 'graphs', to: 'math' },
 
     // From 1-D DP
     { from: '1d-dp', to: '2d-dp' },
     { from: '1d-dp', to: 'bit-manipulation' },
 
     // From 2-D DP
-    { from: '2d-dp', to: 'math' },
+    // No direct connection to Math (covered by Graphs and Bit Manipulation now)
+    // Wait, user said "graphs is connected to ... 2-D DP ... 2-D DP connected to Maths" - NO, user said "graphs is connected to ... Maths & Geometry". 
+    // User did NOT say 2-D DP is connected to Math.
+    // However, Bit Manipulation is connected to Math.
+
+    // From Bit Manipulation
+    { from: 'bit-manipulation', to: 'math' },
 ];
 
 // Get all categories in order for reference

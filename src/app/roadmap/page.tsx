@@ -69,67 +69,7 @@ export default function RoadmapPage() {
             fontFamily: 'system-ui, -apple-system, sans-serif'
         }}>
             {/* Header */}
-            <header style={{
-                position: 'sticky',
-                top: 0,
-                zIndex: 50,
-                background: 'rgba(0, 0, 0, 0.8)',
-                backdropFilter: 'blur(12px)',
-                borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-                padding: '0 24px',
-            }}>
-                <div style={{
-                    maxWidth: 1280,
-                    margin: '0 auto',
-                    height: 64,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-                        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none' }}>
-                            <img 
-                                src="/developer.png" 
-                                alt="Logo" 
-                                style={{
-                                    width: 36,
-                                    height: 36,
-                                    borderRadius: 8,
-                                }}
-                            />
-                            <span style={{ fontSize: 20, fontWeight: 700, color: '#fff' }}>NeetCode 150</span>
-                        </Link>
-                        <span style={{ 
-                            padding: '6px 12px', 
-                            background: 'rgba(99, 102, 241, 0.2)', 
-                            borderRadius: 8,
-                            fontSize: 13,
-                            color: '#818cf8',
-                            fontWeight: 500,
-                        }}>
-                            Roadmap
-                        </span>
-                    </div>
-                    
-                    <Link 
-                        href="/"
-                        style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 8,
-                            padding: '8px 16px',
-                            borderRadius: 8,
-                            background: 'rgba(255,255,255,0.05)',
-                            border: '1px solid rgba(255,255,255,0.1)',
-                            color: '#a1a1aa',
-                            fontSize: 14,
-                            textDecoration: 'none',
-                        }}
-                    >
-                        ← Back to Problems
-                    </Link>
-                </div>
-            </header>
+            {/* Header removed - using GlobalNav */}
 
             {/* Progress Overview */}
             <section style={{ 

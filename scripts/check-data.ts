@@ -2,7 +2,8 @@
 import 'dotenv/config';
 import { MongoClient } from 'mongodb';
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://mongo:jEqCZWooNIPfcjfipzPXCwPWxOOHiHOK@nozomi.proxy.rlwy.net:12346';
+const MONGODB_URI = process.env.MONGODB_URI as string;
+if (!MONGODB_URI) throw new Error('Please add MONGODB_URI to .env.local');
 const DB_NAME = process.env.MONGODB_DB || 'neetcode_tracker';
 
 async function check() {

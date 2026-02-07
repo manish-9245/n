@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import Editor from '@monaco-editor/react';
 import { useIsMobile } from '@/lib/useIsMobile';
+import { RevisionCarousel } from './RevisionCarousel';
 
 interface Solution {
     _id: string;
@@ -81,19 +81,7 @@ export default function RevisionPage() {
         }
     };
 
-    const getLanguageColor = (language: string) => {
-        const colors: Record<string, string> = {
-            python: '#3776ab',
-            javascript: '#f7df1e',
-            typescript: '#3178c6',
-            java: '#ed8b00',
-            cpp: '#00599c',
-            c: '#a8b9cc',
-            go: '#00add8',
-            rust: '#dea584',
-        };
-        return colors[language.toLowerCase()] || '#6366f1';
-    };
+
 
     if (loading) {
         return (
@@ -128,41 +116,7 @@ export default function RevisionPage() {
             color: '#fff',
             fontFamily: 'system-ui, -apple-system, sans-serif'
         }}>
-            {/* Header */}
-            <header style={{
-                position: 'sticky',
-                top: 0,
-                zIndex: 50,
-                background: 'rgba(0, 0, 0, 0.8)',
-                backdropFilter: 'blur(12px)',
-                borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-                padding: '0 clamp(12px, 4vw, 24px)',
-            }}>
-                <div style={{
-                    maxWidth: 1280,
-                    margin: '0 auto',
-                    height: 64,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    gap: 16,
-                }}>
-                    <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-                        <span style={{ fontSize: 20 }}>←</span>
-                        <span style={{ fontSize: 16, fontWeight: 600, color: '#fff' }}>Back</span>
-                    </Link>
-                    <h1 style={{
-                        fontSize: 20,
-                        fontWeight: 700,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 8,
-                    }}>
-                        📚 Revision
-                    </h1>
-                    <div style={{ width: 60 }} /> {/* Spacer for centering */}
-                </div>
-            </header>
+            {/* Header removed - using GlobalNav */}
 
             {/* Filters */}
             <section style={{
@@ -381,143 +335,13 @@ export default function RevisionPage() {
                                                 </div>
                                             )}
 
-                                            {/* Notes */}
-                                            {problem.note && (
+                                            {/* Carousel for Notes & Solutions */}
+                                            {(problem.note || problem.solutions.length > 0) && (
                                                 <div style={{ marginBottom: 24 }}>
-                                                    <h4 style={{
-                                                        fontSize: 13,
-                                                        fontWeight: 600,
-                                                        color: '#f59e0b',
-                                                        marginBottom: 10,
-                                                        textTransform: 'uppercase',
-                                                        letterSpacing: '0.5px',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        gap: 6,
-                                                    }}>
-                                                        📝 My Notes
-                                                    </h4>
-                                                    <div style={{
-                                                        padding: 16,
-                                                        background: 'rgba(245, 158, 11, 0.1)',
-                                                        border: '1px solid rgba(245, 158, 11, 0.2)',
-                                                        borderRadius: 10,
-                                                        fontSize: 14,
-                                                        lineHeight: 1.7,
-                                                        color: '#fef3c7',
-                                                        whiteSpace: 'pre-wrap',
-                                                    }}>
-                                                        {problem.note.content}
-                                                    </div>
-                                                </div>
-                                            )}
-
-                                            {/* Solutions */}
-                                            {problem.solutions.length > 0 && (
-                                                <div>
-                                                    <h4 style={{
-                                                        fontSize: 13,
-                                                        fontWeight: 600,
-                                                        color: '#6366f1',
-                                                        marginBottom: 12,
-                                                        textTransform: 'uppercase',
-                                                        letterSpacing: '0.5px',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        gap: 6,
-                                                    }}>
-                                                        💻 Solutions ({problem.solutions.length})
-                                                    </h4>
-                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                                                        {problem.solutions.map((solution, idx) => (
-                                                            <div
-                                                                key={solution._id}
-                                                                style={{
-                                                                    background: 'rgba(0,0,0,0.4)',
-                                                                    border: '1px solid rgba(255,255,255,0.1)',
-                                                                    borderRadius: 12,
-                                                                    overflow: 'hidden',
-                                                                }}
-                                                            >
-                                                                {/* Solution Header */}
-                                                                <div style={{
-                                                                    display: 'flex',
-                                                                    alignItems: 'center',
-                                                                    justifyContent: 'space-between',
-                                                                    padding: '12px 16px',
-                                                                    background: 'rgba(255,255,255,0.03)',
-                                                                    borderBottom: '1px solid rgba(255,255,255,0.08)',
-                                                                }}>
-                                                                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                                                                        <span style={{
-                                                                            fontSize: 12,
-                                                                            fontWeight: 600,
-                                                                            color: getLanguageColor(solution.language),
-                                                                            background: `${getLanguageColor(solution.language)}20`,
-                                                                            padding: '4px 10px',
-                                                                            borderRadius: 6,
-                                                                            textTransform: 'uppercase',
-                                                                        }}>
-                                                                            {solution.language}
-                                                                        </span>
-                                                                        {solution.name && (
-                                                                            <span style={{ fontSize: 14, color: '#d4d4d8' }}>
-                                                                                {solution.name}
-                                                                            </span>
-                                                                        )}
-                                                                    </div>
-                                                                    <div style={{ display: 'flex', gap: 12, fontSize: 12, color: '#71717a' }}>
-                                                                        {solution.timeComplexity && (
-                                                                            <span>⏱️ {solution.timeComplexity}</span>
-                                                                        )}
-                                                                        {solution.spaceComplexity && (
-                                                                            <span>💾 {solution.spaceComplexity}</span>
-                                                                        )}
-                                                                    </div>
-                                                                </div>
-
-                                                                {/* Explanation */}
-                                                                {solution.explanation && (
-                                                                    <div style={{
-                                                                        padding: '12px 16px',
-                                                                        background: 'rgba(99, 102, 241, 0.05)',
-                                                                        borderBottom: '1px solid rgba(255,255,255,0.08)',
-                                                                        fontSize: 13,
-                                                                        lineHeight: 1.6,
-                                                                        color: '#a5b4fc',
-                                                                        whiteSpace: 'pre-wrap',
-                                                                    }}>
-                                                                        {solution.explanation}
-                                                                    </div>
-                                                                )}
-
-                                                                {/* Code with Monaco Editor */}
-                                                                <div style={{ height: Math.min(400, (solution.code.split('\n').length + 1) * 20) }}>
-                                                                    <Editor
-                                                                        height="100%"
-                                                                        language={solution.language === 'cpp' ? 'cpp' : solution.language}
-                                                                        value={solution.code}
-                                                                        theme="vs-dark"
-                                                                        options={{
-                                                                            readOnly: true,
-                                                                            minimap: { enabled: false },
-                                                                            fontSize: 13,
-                                                                            fontFamily: "'JetBrains Mono', 'Fira Code', ui-monospace, monospace",
-                                                                            scrollBeyondLastLine: false,
-                                                                            automaticLayout: true,
-                                                                            lineNumbers: 'on',
-                                                                            scrollbar: {
-                                                                                vertical: 'auto',
-                                                                                horizontal: 'auto',
-                                                                            },
-                                                                            domReadOnly: true,
-                                                                            cursorStyle: 'line-thin',
-                                                                        }}
-                                                                    />
-                                                                </div>
-                                                            </div>
-                                                        ))}
-                                                    </div>
+                                                    <RevisionCarousel 
+                                                        note={problem.note} 
+                                                        solutions={problem.solutions} 
+                                                    />
                                                 </div>
                                             )}
 
