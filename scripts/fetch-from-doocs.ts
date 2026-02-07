@@ -60,7 +60,7 @@ async function fetchDoocsDescription(id: string, title: string): Promise<string 
 async function main() {
     console.log('🚀 Starting Doocs fetch...');
 
-    const client = new MongoClient(MONGODB_URI);
+    const client = new MongoClient(MONGODB_URI as string);
     await client.connect();
     console.log('✅ DB Connected');
     const db = client.db(DB_NAME);

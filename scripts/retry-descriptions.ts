@@ -113,7 +113,7 @@ async function retryFailedDescriptions() {
     console.log('🔄 Retrying failed problem descriptions...\n');
     console.log('⏰ Using 3-second delay between requests to avoid rate limits\n');
 
-    const client = new MongoClient(MONGODB_URI);
+    const client = new MongoClient(MONGODB_URI as string);
 
     try {
         await client.connect();

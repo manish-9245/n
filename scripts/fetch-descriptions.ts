@@ -137,7 +137,7 @@ async function fetchProblemDescription(titleSlug: string): Promise<string | null
 async function updateAllDescriptions() {
     console.log('🚀 Starting to fetch all problem descriptions from alfa-leetcode-api...\n');
 
-    const client = new MongoClient(MONGODB_URI);
+    const client = new MongoClient(MONGODB_URI as string);
 
     try {
         await client.connect();
