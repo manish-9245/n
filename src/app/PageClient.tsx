@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { GlareCard } from '@/components/ui/glare-card';
 import Link from 'next/link';
 import { useIsMobile } from '@/lib/useIsMobile';
+import { MultiSelectDropdown } from '@/components/MultiSelectDropdown';
 // ActivityHeatmap and next-auth imports removed as they are moved to GlobalNav
 
 interface Problem {
@@ -20,21 +21,28 @@ export default function PageClient() {
   // Removed session/modal state as it is now in GlobalNav
   const { problems } = useProblems();
 
-  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const isMobile = useIsMobile(768);
 
-
-
-  const categories = ['All', ...Array.from(new Set(problems.map(p => p.category)))];
+  // Extract unique categories (exclude 'All' since we handle it as empty array)
+  const categories = Array.from(new Set(problems.map(p => p.category))).sort();
 
   const filteredProblems = problems.filter(p => {
-    const matchesCategory = selectedCategory === 'All' || p.category === selectedCategory;
+    const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(p.category);
     const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
-
+  const toggleCategory = (cat: string) => {
+    setSelectedCategories(prev => {
+        if (prev.includes(cat)) {
+            return prev.filter(c => c !== cat);
+        } else {
+            return [...prev, cat];
+        }
+    });
+  };
 
   const getDifficultyStyles = (difficulty: string) => {
     switch (difficulty) {
@@ -179,20 +187,18 @@ export default function PageClient() {
                 msOverflowStyle: 'none',
               }}>
                 <style>{`.filter-chips::-webkit-scrollbar { display: none; }`}</style>
-                {categories.map(cat => (
-                  <button
-                    key={cat}
-                    onClick={() => setSelectedCategory(cat)}
+                <button
+                    onClick={() => setSelectedCategories([])}
                     style={{
                       padding: '8px 16px',
                       borderRadius: 20,
-                      background: selectedCategory === cat 
+                      background: selectedCategories.length === 0 
                         ? 'linear-gradient(135deg, #6366f1, #8b5cf6)' 
                         : 'rgba(255,255,255,0.08)',
-                      border: selectedCategory === cat 
+                      border: selectedCategories.length === 0 
                         ? 'none' 
                         : '1px solid rgba(255,255,255,0.15)',
-                      color: selectedCategory === cat ? '#fff' : '#a1a1aa',
+                      color: selectedCategories.length === 0 ? '#fff' : '#a1a1aa',
                       fontSize: 13,
                       fontWeight: 500,
                       cursor: 'pointer',
@@ -200,9 +206,35 @@ export default function PageClient() {
                       flexShrink: 0,
                     }}
                   >
-                    {cat}
+                    All
                   </button>
-                ))}
+                {categories.map(cat => {
+                    const isSelected = selectedCategories.includes(cat);
+                    return (
+                        <button
+                            key={cat}
+                            onClick={() => toggleCategory(cat)}
+                            style={{
+                            padding: '8px 16px',
+                            borderRadius: 20,
+                            background: isSelected 
+                                ? 'linear-gradient(135deg, #6366f1, #8b5cf6)' 
+                                : 'rgba(255,255,255,0.08)',
+                            border: isSelected 
+                                ? 'none' 
+                                : '1px solid rgba(255,255,255,0.15)',
+                            color: isSelected ? '#fff' : '#a1a1aa',
+                            fontSize: 13,
+                            fontWeight: 500,
+                            cursor: 'pointer',
+                            whiteSpace: 'nowrap',
+                            flexShrink: 0,
+                            }}
+                        >
+                            {cat}
+                        </button>
+                    );
+                })}
               </div>
               
               {/* Results Count - Vertically Centered */}
@@ -248,26 +280,14 @@ export default function PageClient() {
               }}
             />
             
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              style={{
-                padding: '12px 16px',
-                borderRadius: 10,
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                color: '#fff',
-                fontSize: 14,
-                outline: 'none',
-                cursor: 'pointer',
-                minWidth: 'min(160px, 100%)',
-                flex: '0 0 auto',
-              }}
-            >
-              {categories.map(cat => (
-                <option key={cat} value={cat} style={{ background: '#18181b' }}>{cat}</option>
-              ))}
-            </select>
+            {/* MultiSelect Dropdown */}
+            <div style={{ minWidth: 220, flex: '0 0 auto' }}>
+                <MultiSelectDropdown 
+                    options={categories}
+                    selected={selectedCategories}
+                    onChange={setSelectedCategories}
+                />
+            </div>
             
             <span style={{ 
               fontSize: 14, 

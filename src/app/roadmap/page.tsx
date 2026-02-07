@@ -12,54 +12,21 @@ interface Problem {
     order: number;
 }
 
-export default function RoadmapPage() {
-    const [problems, setProblems] = useState<Problem[]>([]);
-    const [solvedProblemIds, setSolvedProblemIds] = useState<string[]>([]);
-    const [loading, setLoading] = useState(true);
+import { useProblems } from '@/context/ProblemsContext';
 
+export default function RoadmapPage() {
+    const { problems } = useProblems();
+    const [solvedProblemIds, setSolvedProblemIds] = useState<string[]>([]);
+    
     useEffect(() => {
-        Promise.all([
-            fetch('/api/collections/neetcode-150/problems').then(r => r.json()),
-            fetch('/api/progress').then(r => r.json()),
-        ]).then(([problemsData, progressData]) => {
-            setProblems(problemsData);
-            setSolvedProblemIds(progressData.solvedProblemIds || []);
-            setLoading(false);
-        }).catch(error => {
-            console.error('Error loading data:', error);
-            setLoading(false);
-        });
+        // Fetch progress only
+        fetch('/api/progress').then(r => r.json()).then(data => {
+            setSolvedProblemIds(data.solvedProblemIds || []);
+        }).catch(console.error);
     }, []);
 
-    // Calculate overall progress
     const solvedCount = problems.filter(p => solvedProblemIds.includes(p._id)).length;
     const totalCount = problems.length;
-
-    if (loading) {
-        return (
-            <div style={{ 
-                minHeight: '100vh', 
-                background: '#000', 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center' 
-            }}>
-                <div style={{ textAlign: 'center' }}>
-                    <div style={{ 
-                        width: 48, 
-                        height: 48, 
-                        border: '4px solid #6366f1', 
-                        borderTopColor: 'transparent', 
-                        borderRadius: '50%', 
-                        animation: 'spin 1s linear infinite',
-                        margin: '0 auto 16px'
-                    }} />
-                    <p style={{ color: '#71717a', fontSize: 14 }}>Loading roadmap...</p>
-                </div>
-                <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-            </div>
-        );
-    }
 
     return (
         <div style={{ 
